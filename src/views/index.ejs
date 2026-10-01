@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="de">
+  <%- include('partials/head') %>
+  <body>
+    <%- include('partials/sidenav') %>
+    <div class="main">
+      <h1><%= header %></h1>
+      <hr>
+      <div id="messages"></div>
+      <div id="content"></div>
+    </div>
+    <%- include('partials/footer') %>
+  </body>
+  <script>
+    const messagesElem = document.getElementById('messages');
+
+    window.renderMessage = (msg, idx, replaceElem) => {
+      const para = document.createElement('p');
+      const content = msg.content;
+      const role = msg.role;
+      const metadata = msg.metadata;
+
+      para.classList.add(role);
+      para.dataset.index = idx + 1;
+
+      para.classList.add('animate__animated', 'animate__fadeInUp', 'animate__faster');
+      para.addEventListener('animationend', (event) => {
+        if (event.target !== para || event.animationName !== 'fadeInUp') {
+          return;
+        }
+
+        para.classList.remove('animate__animated', 'animate__fadeInUp', 'animate__faster');
+      });
+
+      const index = document.createElement('span');
+      index.classList.add('index');
+      index.dataset.index = idx + 1;
+      para.appendChild(index);
+
+      const text = document.createElement('span');
+      text.classList.add('text');
+      text.innerText = `${content}`;
+      para.appendChild(text);
+
+      const sources = _.uniq(Array.isArray(metadata) ? metadata.filter(Boolean) : []);
+
+      if (sources.length) {
+        const details = document.createElement('details');
+        details.classList.add('metadata');
+
+        details.dataset.sourceCount = sources.length;
+
+        const summary = document.createElement('summary');
+        summary.dataset.sourceCount = sources.length;
+        summary.dataset.sourceLabel = sources.length === 1 ? 'Quelle' : 'Quellen';
+        details.appendChild(summary);
+
+        const list = document.createElement('ul');
+
+        sources.forEach((source) => {
+          const item = document.createElement('li');
+          const href = /^https?:\/\//.test(source) ? source : `https://${source}`;
+          const link = document.createElement('a');
+
+          link.href = href;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.innerText = source;
+
+          item.appendChild(link);
+          list.appendChild(item);
+        });
+
+        details.appendChild(list);
+        para.appendChild(details);
+      }
+
+      if (replaceElem && replaceElem.parentNode === messagesElem) {
+        messagesElem.replaceChild(para, replaceElem);
+      } else {
+        messagesElem.appendChild(para);
+      }
+
+      return para;
+    };
+
+    window.messagesSessionStore.forEach(window.renderMessage);
+  </script>
+</html>

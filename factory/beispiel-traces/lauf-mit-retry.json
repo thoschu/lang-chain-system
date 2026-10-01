@@ -1,0 +1,87 @@
+{
+  "runId": "2026-08-31T18-46-05-533Z",
+  "feature": "Zeig auf der Startseite die Version des Projekts, die das Backend unter /api/version liefert",
+  "recordedAt": "2026-08-31T19:00:52.479Z",
+  "spans": [
+    {
+      "node": "spec",
+      "attempt": 0,
+      "startMs": 42,
+      "durationMs": 212237,
+      "tokensIn": 607360,
+      "tokensOut": 13567,
+      "costUsd": 1.321262,
+      "note": "15 Runden"
+    },
+    {
+      "node": "implement",
+      "attempt": 1,
+      "startMs": 212281,
+      "durationMs": 292494,
+      "tokensIn": 907521,
+      "tokensOut": 20880,
+      "costUsd": 1.8185910000000003,
+      "note": "21 Runden"
+    },
+    {
+      "node": "verify",
+      "attempt": 1,
+      "startMs": 504779,
+      "durationMs": 3739,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "costUsd": 0,
+      "note": "rot (8 Fehlerzeilen)"
+    },
+    {
+      "node": "scope",
+      "attempt": 1,
+      "startMs": 508519,
+      "durationMs": 95,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "costUsd": 0,
+      "note": "8 Dateien"
+    },
+    {
+      "node": "implement",
+      "attempt": 2,
+      "startMs": 508617,
+      "durationMs": 178896,
+      "tokensIn": 660482,
+      "tokensOut": 10899,
+      "costUsd": 1.3617854999999999,
+      "note": "18 Runden"
+    },
+    {
+      "node": "verify",
+      "attempt": 2,
+      "startMs": 687515,
+      "durationMs": 7222,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "costUsd": 0,
+      "note": "grün"
+    },
+    {
+      "node": "scope",
+      "attempt": 2,
+      "startMs": 694738,
+      "durationMs": 104,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "costUsd": 0,
+      "note": "7 Dateien"
+    },
+    {
+      "node": "review",
+      "attempt": 2,
+      "startMs": 694843,
+      "durationMs": 192128,
+      "tokensIn": 169985,
+      "tokensOut": 11828,
+      "costUsd": 0.70059625,
+      "note": "14 Runden"
+    }
+  ]
+}

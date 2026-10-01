@@ -1,0 +1,129 @@
+<footer>
+      <form class="chat" method="get" action="/">
+            <input
+                  id="question"
+                  type="text"
+                  name="question"
+                  placeholder="Frag mich etwas zu LangChain..."
+                  autocomplete="off"
+                  autofocus
+            >
+            <button id="submit" type="submit">Senden</button>
+            <button
+                  type="button"
+                  class="clear"
+                  title="Eingabe leeren"
+                  aria-label="Eingabe leeren"
+                  onclick="this.form.question.value = ''; this.form.question.focus();"
+            >&times;</button>
+      </form>
+</footer>
+<script>
+      const elemQuestion = document.getElementById('question');
+      const elemSubmit = document.getElementById('submit');
+
+      const elemClear = document.querySelector('footer .chat button.clear');
+
+      // Sperrt bzw. entsperrt die Eingabe waehrend eine Anfrage laeuft.
+      // Verhindert Doppel-Absenden und macht den Wartezustand sichtbar.
+      const setBusy = (busy) => {
+            elemQuestion.disabled = busy;
+            elemSubmit.disabled = busy;
+            elemClear.disabled = busy;
+            elemSubmit.classList.toggle('busy', busy);
+            elemSubmit.setAttribute('aria-busy', String(busy));
+      };
+
+      let inFlight = false;
+
+      elemSubmit.addEventListener('click', async (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if(inFlight || elemQuestion.value.trim() === '') {
+                  return;
+            }
+
+            const human = {
+                  role: 'human',
+                  content: elemQuestion.value,
+                  metadata: []
+            };
+
+            window.messagesSessionStore.push(human);
+
+            const para = window.renderMessage(human, window.messagesSessionStore.length - 1);
+            para.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            elemQuestion.value = '';
+
+            inFlight = true;
+            setBusy(true);
+
+            // Platzhalter-Kachel: gleiche Optik wie eine AI-Antwort, aber mit
+            // .pending fuer die Punkte-Animation. Belegt schon jetzt den Platz
+            // und die Laufnummer der kommenden Antwort - kein Layout-Sprung
+            // beim Ersetzen.
+            const pendingIndex = window.messagesSessionStore.length;
+            const pending = window.renderMessage(
+                  { role: 'ai', content: '', metadata: [] },
+                  pendingIndex
+            );
+            pending.classList.add('pending');
+
+            const pendingText = pending.querySelector('.text');
+            // Mittlerer Punkt - die beiden aeusseren kommen aus CSS
+            // (::before / ::after auf .text).
+            pendingText.appendChild(Object.assign(document.createElement('span'), { className: 'dot' }));
+            pendingText.setAttribute('role', 'status');
+            pendingText.setAttribute('aria-label', 'Antwort wird geladen');
+            pending.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            try {
+                  const response = await fetch('http://localhost:8008/api/llm', {
+                        method: 'POST',
+                        headers: {
+                              'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ question: human.content })
+                  });
+
+                  if(!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                  }
+
+                  const answer = await response.json();
+
+                  const ai = {
+                        role: 'ai',
+                        content: answer.content,
+                        metadata: answer.metadata || []
+                  };
+
+                  window.messagesSessionStore.push(ai);
+
+                  // Platzhalter an derselben Stelle durch die echte Antwort
+                  // ersetzen, damit die Reihenfolge stimmt.
+                  window.renderMessage(ai, pendingIndex, pending)
+                        .scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } catch (error) {
+                  console.error('LLM request failed:', error);
+
+                  // Fehler nicht in den Store schreiben - beim naechsten
+                  // Versuch soll die Nummer wieder frei sein.
+                  window.renderMessage(
+                        {
+                              role: 'error',
+                              content: `Antwort konnte nicht geladen werden (${error.message}). Bitte erneut versuchen.`,
+                              metadata: []
+                        },
+                        pendingIndex,
+                        pending
+                  ).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } finally {
+                  inFlight = false;
+                  setBusy(false);
+                  elemQuestion.focus();
+            }
+      });
+</script>

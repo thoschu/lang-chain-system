@@ -1,0 +1,22 @@
+<div class="sidenav">
+  <a href="https://www.ioio.to" target="_blank">About</a>
+  <a id="clear" href="#">Clear</a>
+</div>
+<script>
+  const elem = document.getElementById('clear');
+
+  elem.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    window.messagesSessionStore = [window.initMessage];
+
+    const messagesElem = document.getElementById('messages');
+
+    if (messagesElem) {
+      messagesElem.replaceChildren();
+    }
+
+    window.messagesSessionStore.forEach(window.renderMessage);
+  });
+</script>

@@ -1,0 +1,23 @@
+<head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title><%= title %></title>
+      <link rel="icon" type="image/x-icon" href="https://www.thomas-schulte.de/html/images/favicon.ico">
+      <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Londrina+Shadow&display=swap" >
+      <link rel="stylesheet" type="text/css" href="/css/style.css">
+      <script src="https://cdn.jsdelivr.net/npm/underscore@1.13.8/underscore-umd-min.js"></script>
+      <script>
+            window.initMessage = {
+                  role: 'assistant',
+                  content: `Ask me anything about LangChain docs []. I'll retrieve relevant context and cite sources.`,
+                  metadata: ['https://www.langchain.com/']
+            }
+
+            if (!window.messagesSessionStore) {
+                  window.messagesSessionStore = [window.initMessage];
+            }
+      </script>
+</head>

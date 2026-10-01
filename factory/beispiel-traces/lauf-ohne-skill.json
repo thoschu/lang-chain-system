@@ -1,0 +1,57 @@
+{
+  "runId": "2026-08-31T18-33-29-965Z",
+  "feature": "Zeig auf der Startseite die Version des Projekts, die das Backend unter /api/version liefert",
+  "recordedAt": "2026-08-31T18:45:03.405Z",
+  "spans": [
+    {
+      "node": "spec",
+      "attempt": 0,
+      "startMs": 41,
+      "durationMs": 209333,
+      "tokensIn": 457706,
+      "tokensOut": 14536,
+      "costUsd": 1.17087375,
+      "note": "10 Runden"
+    },
+    {
+      "node": "implement",
+      "attempt": 1,
+      "startMs": 209377,
+      "durationMs": 323954,
+      "tokensIn": 885933,
+      "tokensOut": 22303,
+      "costUsd": 1.78243725,
+      "note": "22 Runden"
+    },
+    {
+      "node": "verify",
+      "attempt": 1,
+      "startMs": 533336,
+      "durationMs": 7798,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "costUsd": 0,
+      "note": "grün"
+    },
+    {
+      "node": "scope",
+      "attempt": 1,
+      "startMs": 541136,
+      "durationMs": 102,
+      "tokensIn": 0,
+      "tokensOut": 0,
+      "costUsd": 0,
+      "note": "8 Dateien"
+    },
+    {
+      "node": "review",
+      "attempt": 1,
+      "startMs": 541241,
+      "durationMs": 152222,
+      "tokensIn": 167973,
+      "tokensOut": 10696,
+      "costUsd": 0.694642,
+      "note": "11 Runden"
+    }
+  ]
+}

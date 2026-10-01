@@ -1,0 +1,23 @@
+{
+  // Typpruefung fuer src/server.js gegen die von `npm run build` erzeugten
+  // Deklarationen in dist/. Laeuft bewusst getrennt vom Haupt-Build:
+  // server.js importiert aus ../dist/, dadurch wird dist/core.d.ts zur
+  // Eingabedatei - ein gemeinsamer Build mit allowJs wuerde daran mit
+  // TS5055 scheitern ("would overwrite input file"). "noEmit" loest das.
+  "compilerOptions": {
+    "module": "nodenext",
+    "target": "esnext",
+    "types": ["node"],
+
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true
+  },
+  "include": ["src/server.js"]
+}

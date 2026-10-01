@@ -1,0 +1,21 @@
+{
+  "name": "factory",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "brief": "tsx src/brief.ts",
+    "factory": "tsx src/run.ts",
+    "trace": "tsx src/trace-show.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.251",
+    "@langchain/langgraph": "^1.4.13",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "tsx": "^4.20.6",
+    "typescript": "~5.9.2"
+  }
+}

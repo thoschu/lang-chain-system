@@ -1,0 +1,412 @@
+:root {
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --human: blue;
+    --ai: blue;
+    --tool: orange;
+    --system: black;
+    --human: green;
+    --assistant: purple;
+    --error: red;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #16181d;
+        --fg: #e8e8e8;
+        --muted: #9aa1ad;
+        --accent: #7aa2f7;
+    }
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.6;
+}
+
+.sidenav {
+    height: 100%;
+    width: 160px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    padding-top: 20px;
+}
+
+.sidenav a {
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+}
+
+.sidenav a:hover {
+    color: #f1f1f1;
+}
+
+.main {
+    flex: 1;
+    margin-left: 160px;
+    padding: 2rem 1.5rem;
+    max-width: 100rem;
+}
+
+footer {
+    margin-left: 160px;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--muted);
+    background: var(--bg);
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+footer .chat {
+    display: flex;
+    gap: 0.5rem;
+}
+
+footer .chat input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.6rem 0.9rem;
+    border: 1px solid var(--muted);
+    border-radius: 999px;
+    background: var(--bg);
+    color: var(--fg);
+    font: inherit;
+    font-size: 1rem;
+}
+
+footer .chat input::placeholder {
+    color: var(--muted);
+}
+
+footer .chat input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: transparent;
+}
+
+footer .chat button {
+    flex: none;
+    padding: 0.6rem 1.25rem;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+footer .chat button:hover {
+    background: color-mix(in srgb, var(--accent) 85%, black);
+}
+
+footer .chat button:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: 2px;
+}
+
+footer .chat input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+footer .chat button:disabled {
+    cursor: not-allowed;
+}
+
+footer .chat button.busy {
+    position: relative;
+    color: transparent;
+    opacity: 1;
+}
+
+footer .chat button.busy::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid color-mix(in srgb, #fff 40%, transparent);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    footer .chat button.busy::after {
+        animation-duration: 2s;
+    }
+}
+
+footer .chat button.clear {
+    width: 2.6rem;
+    padding: 0.6rem 0;
+    border-color: var(--muted);
+    background: transparent;
+    color: var(--muted);
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+footer .chat button.clear:hover {
+    border-color: var(--fg);
+    background: color-mix(in srgb, var(--muted) 15%, transparent);
+    color: var(--fg);
+}
+
+@media screen and (max-height: 450px) {
+    .sidenav { padding-top: 15px; }
+    .sidenav a { font-size: 18px; }
+}
+
+h1 {
+    font-size: 1.5rem;
+    color: var(--accent);
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid var(--muted);
+    margin: 1.5rem 0;
+}
+
+p {
+    white-space: pre-wrap;
+}
+
+div#messages p {
+    display: grid;
+    grid-template-columns: auto 2rem 1fr;
+    align-items: start;
+    gap: 0.25rem 0.75rem;
+    margin: 0 0 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--role, var(--muted));
+    border-left-width: 3px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--role, var(--muted)) 6%, var(--bg));
+    color: var(--fg);
+}
+
+div#messages p::before,
+div#messages p::after {
+    content: "";
+    grid-row: 1;
+    grid-column: 2;
+}
+
+div#messages p::before {
+    box-sizing: border-box;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--role, var(--muted));
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--role, var(--muted)) 12%, transparent);
+}
+
+div#messages p::after {
+    width: 1.25rem;
+    height: 1.25rem;
+    align-self: start;
+    justify-self: center;
+    margin-top: 0.375rem;
+    background-color: var(--role, var(--muted));
+    -webkit-mask: var(--icon) center / contain no-repeat;
+    mask: var(--icon) center / contain no-repeat;
+}
+
+div#messages p .index {
+    grid-row: 1;
+    grid-column: 1;
+    align-self: center;
+    min-width: 1.5em;
+    font-size: 1.7em;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    color: var(--muted);
+    font-family: "Londrina Shadow", sans-serif;
+    font-weight: 800;
+    font-style: normal;
+    text-shadow: 2px 2px grey;
+    color: lightslategray;
+}
+
+div#messages p .index::before {
+    content: attr(data-index);
+}
+
+div#messages p .text {
+    grid-row: 1;
+    grid-column: 3;
+}
+
+div#messages p.pending:not(.animate__animated) {
+    animation: pending-pulse 1.6s ease-in-out infinite;
+}
+
+div#messages p.pending .text {
+    display: flex;
+    align-items: center;
+    gap: 0.3em;
+    min-height: 2rem;
+}
+
+div#messages p.pending .text::before,
+div#messages p.pending .text::after,
+div#messages p.pending .text .dot {
+    content: "";
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--role, var(--muted));
+    animation: pending-dots 1.2s ease-in-out infinite;
+}
+
+div#messages p.pending .text::before { animation-delay: 0s; }
+div#messages p.pending .text .dot    { animation-delay: 0.2s; }
+div#messages p.pending .text::after  { animation-delay: 0.4s; }
+
+@keyframes pending-dots {
+    0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+    40%           { opacity: 1;    transform: translateY(-0.2rem); }
+}
+
+@keyframes pending-pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.55; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    div#messages p.pending {
+        animation: none;
+    }
+
+    div#messages p.pending .text::before,
+    div#messages p.pending .text::after,
+    div#messages p.pending .text .dot {
+        animation: none;
+        opacity: 0.6;
+    }
+}
+
+div#messages p .metadata {
+    grid-row: 2;
+    grid-column: 3;
+    margin-top: 0.25rem;
+    font-size: 0.85em;
+    white-space: normal;
+}
+
+div#messages p .metadata summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    width: fit-content;
+    padding: 0.15em 0.5em;
+    border: 1px solid color-mix(in srgb, var(--role, var(--muted)) 40%, transparent);
+    border-radius: 999px;
+    color: var(--role, var(--muted));
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+div#messages p .metadata summary::-webkit-details-marker {
+    display: none;
+}
+
+div#messages p .metadata summary::before {
+    content: "";
+    width: 0.5em;
+    height: 0.5em;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform 0.15s ease;
+}
+
+div#messages p .metadata[open] summary::before {
+    transform: rotate(45deg);
+}
+
+div#messages p .metadata summary::after {
+    content: attr(data-source-count) " " attr(data-source-label);
+}
+
+div#messages p .metadata summary:hover {
+    background: color-mix(in srgb, var(--role, var(--muted)) 12%, transparent);
+}
+
+div#messages p .metadata ul {
+    margin: 0.5rem 0 0;
+    padding-left: 1.1rem;
+}
+
+div#messages p .metadata li {
+    margin: 0.15rem 0;
+}
+
+div#messages p .metadata a {
+    color: var(--role, var(--muted));
+    overflow-wrap: anywhere;
+}
+
+div#messages p.system {
+    --role: var(--system);
+    --icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>');
+}
+
+div#messages p.human {
+    --role: var(--human);
+    --icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>');
+}
+
+div#messages p.assistant {
+    --role: var(--assistant);
+    --icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>');
+}
+
+div#messages p.ai {
+    --role: var(--ai);
+    --icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L14 10 L21 12 L14 14 L12 21 L10 14 L3 12 L10 10 Z"/><path d="M19 3v4"/><path d="M21 5h-4"/><path d="M5 17v4"/><path d="M7 19H3"/></svg>');
+}
+
+div#messages p.error {
+    --role: var(--error);
+    --icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>');
+}
+
+div#messages p.tool {
+    --role: var(--tool);
+    --icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>');
+}
+
+footer {
+    height: 50px;
+    margin-top: -50px;
+}
