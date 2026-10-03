@@ -1,9 +1,9 @@
 {
   "name": "langchainsystem",
   "version": "0.0.1",
-  "description": "",
+  "description": "ioio.to",
   "license": "ISC",
-  "author": "",
+  "author": "thoschulte@gmail.com",
   "type": "module",
   "scripts": {
     "i": "npm install",
