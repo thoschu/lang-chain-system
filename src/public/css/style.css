@@ -236,8 +236,8 @@ div#messages p::after {
     justify-self: center;
     margin-top: 0.375rem;
     background-color: var(--role, var(--muted));
-    -webkit-mask: var(--icon) center / contain no-repeat;
-    mask: var(--icon) center / contain no-repeat;
+    /*-webkit-mask: var(--icon) center / contain no-repeat;*/
+    /*mask: var(--icon) center / contain no-repeat;*/
 }
 
 div#messages p .index {
@@ -333,7 +333,7 @@ div#messages p .metadata summary {
     color: var(--role, var(--muted));
     cursor: pointer;
     list-style: none;
-    user-select: none;
+    /*user-select: none;*/
 }
 
 div#messages p .metadata summary::-webkit-details-marker {

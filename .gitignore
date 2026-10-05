@@ -6,5 +6,4 @@ dist/
 .idea
 .claude/settings.local.json
 
-
 chroma-data

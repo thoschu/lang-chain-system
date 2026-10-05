@@ -104,3 +104,8 @@ curl -X POST http://localhost:8008/api/llm \
   leere Ergebnisse.
 - Der Server importiert `dist/core.js` — vor `npm run server` muss also gebaut
   werden (`npm start` erledigt das).
+
+## Sonstiges
+
+![LangGraph Graph](/graph.png)
+
