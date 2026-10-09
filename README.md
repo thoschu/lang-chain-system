@@ -108,4 +108,3 @@ curl -X POST http://localhost:8008/api/llm \
 ## Sonstiges
 
 ![LangGraph Graph](/graph.png)
-

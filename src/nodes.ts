@@ -5,23 +5,22 @@ import { MessagesAnnotation } from '@langchain/langgraph';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
 
 import { llm, tools } from './react.ts';
-import { stateAnnotation, State, StateUpdate, Node } from './types.ts';
+import { stateAnnotation, State, StateUpdate, Node, ToolCallingLlm } from './types.ts';
 
-const SYSTEM_MESSAGE: string = `You are a helpful math agent that can use tools to answer questions.`;
+const SYSTEM_MESSAGE: string = `You are a helpful agent that can use tools to answer questions.`;
 const systemMessage: SystemMessage = new SystemMessage(SYSTEM_MESSAGE);
 
-export const runAgentReasoning = async (state: State) => {
-    const messages: Array<BaseMessage<MessageStructure<MessageToolSet>, MessageType>> = state.messages;
-    const response: AIMessageChunk<MessageStructure<MessageToolSet>> = await llm.invoke([
-        systemMessage,
-        ...messages,
-    ]);
+export const runAgentReasoning: Node = async (state: State) => {
+    const { ollama }: Record<'ollama', ToolCallingLlm> = llm;
+    const { messages: stateMessages, value }: State = state;
+    const promptMessages: Array<BaseMessage<MessageStructure<MessageToolSet>, MessageType>> = [systemMessage, ...stateMessages];
+    const response: AIMessageChunk<MessageStructure<MessageToolSet>> = await ollama.invoke(promptMessages);
+    const messages: Array<AIMessageChunk<MessageStructure<MessageToolSet>>> = [response];
 
     return {
-        messages: [response],
-        index: state.index
+        messages,
+        value
     };
 };
 
-//export const toolNode: ToolNode<typeof MessagesAnnotation.State, typeof MessagesAnnotation.State> = new ToolNode(tools);
-export const toolNode = new ToolNode(tools);
+export const toolNode: ToolNode = new ToolNode(tools);

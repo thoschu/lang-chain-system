@@ -11,7 +11,7 @@ import type { Runnable }  from '@langchain/core/runnables';
 import { ChatOllama, type ChatOllamaCallOptions } from '@langchain/ollama';
 import { tool } from 'langchain/tools';
 import { Firecrawl, type SearchData } from 'firecrawl';
-import { toUpper, append } from 'ramda';
+import { toUpper, append, prop, last, length, and } from 'ramda';
 import { z } from 'zod';
 
 import { runAgentReasoning, toolNode } from './nodes.ts';
@@ -27,23 +27,17 @@ logHeader(`React Agent Executor with LangGraph is running in ${PROD === 'true' ?
 const DOUBLE: string = 'double' as const;
 
 const init: Node = (state: State): State => {
-    const messages = state.messages;
-    const systemMsg: SystemMessage = new SystemMessage('You are a helpful math agent.');
+    const { messages, value }: State = state;
 
-    console.dir(state);
-
-    //const m = messages.pop(systemMsg)
+    logInfo('init');
 
     return {
-        messages: [],
-        value: 0
+        messages, value: value + 10
     };
 };
 
 const shouldContinue: (state: State) => 'double' | typeof END = (state: State): 'double' | typeof END => {
-    logInfo(state.value.toString());
-    logInfo( shouldContinue.name);
-
+    logInfo('shouldContinue');
 
     if (state.value <= 100) {
         return 'double';
@@ -52,10 +46,23 @@ const shouldContinue: (state: State) => 'double' | typeof END = (state: State): 
     return END;
 }
 
-const increment: GraphNode<typeof stateAnnotation> = (state: State): State => {
-    logSuccess(state.value.toString());
+const shouldContinueAfterReasoning = (state: State) => {
+    const { messages }: State = state;
+    const lastMessage: BaseMessage<MessageStructure<MessageToolSet>, MessageType> | undefined = last(messages);
 
-    logSuccess(state.messages.toString());
+    logInfo('shouldContinueAfterReasoning');
+
+    if (lastMessage instanceof AIMessage && prop('tool_calls', lastMessage)?.length !== 0) {
+        const message: AIMessage = lastMessage;
+
+        return 'tool';
+    }
+
+    return 'increment';
+}
+
+const increment: GraphNode<typeof stateAnnotation> = (state: State): State => {
+    logInfo('increment');
 
     return {
         messages: state.messages,
@@ -64,7 +71,7 @@ const increment: GraphNode<typeof stateAnnotation> = (state: State): State => {
 };
 
 const double: Node = (state: State): State => {
-    logSuccess(state.value.toString());
+    logInfo('double');
 
     return {
         messages: state.messages,
@@ -77,57 +84,36 @@ const graph = new StateGraph(stateAnnotation)
     .addNode('reasoning', runAgentReasoning)
     .addNode('increment', increment)
     .addNode('double', double)
+    .addNode('tool', toolNode)
 
     .addEdge(START, 'init')
     .addEdge('init', 'reasoning')
-    .addEdge('reasoning', 'increment')
+    .addEdge('tool', 'reasoning')
     .addEdge('increment', 'double')
-    //.addEdge('double', END)
+
+    .addConditionalEdges('reasoning', shouldContinueAfterReasoning, [ 'tool', 'increment' ])
     .addConditionalEdges('double', shouldContinue, [ 'double', END ])
+
     .compile();
 
-const result = await graph.invoke({
+const result: State = await graph.invoke({
     messages: [
-        new HumanMessage('What is the temperature in Tokyo right now? List it and then uppercase it.')
+        new HumanMessage('What is the current weather in Tokyo right now? List it and then triple it.')
     ],
     value: 1,
-}).then(async (res) => {
-    //console.log(res);
-
+}).then(async (state: State) => {
     const drawableGraph = await graph.getGraphAsync();
     const image: Blob = await drawableGraph.drawMermaidPng();
     const imageBuffer: Uint8Array<ArrayBuffer> = new Uint8Array(await image.arrayBuffer());
 
     await fs.writeFile('./graph.png', imageBuffer);
 
-    return res;
+    console.dir(state);
+
+    return state;
 });
 
-console.log(result);
-
-
-
-//console.log(result.messages.at(-1)?.content);
-
-// stateGraphFlow.addNode(AGENT_REASON, runAgentReasoning);
-// stateGraphFlow.setEntryPoint(AGENT_REASON);
-// stateGraphFlow.addNode(ACT, runAgentAct);
-//
-// stateGraphFlow.addEdge(START, AGENT_REASON);
-
-
-
-// const systemMessage: SystemMessage = new SystemMessage(
-//     "You are a helpful shopping assistant. " +
-//     "Response always in uppercase and use to_upper_case_tool. " +
-//     "You have access to two tools: [to_upper_case_tool, firecrawl_search_tool]\n\n"
-// );
-// const humanMessage: HumanMessage = new HumanMessage('Wo liegt Zürich?');
-//
-// const messages: Array<BaseMessage> = [systemMessage, humanMessage];
-//
-// const res = llmWithTools.invoke(messages);
-//
-// res.then((result: AIMessage) => {
-//     console.log(result);
-// });
+console.log('#####################');
+const { messages, value }: State = result;
+const lastMessage = last(messages);
+console.log(lastMessage);
