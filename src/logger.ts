@@ -1,9 +1,12 @@
+import { add } from 'ramda';
+
 export enum Icons {
     GREEN_CHECK = '✅',
     RED_CROSS = '❌',
     WARNING = '⚠️',
     INFO = 'ℹ️',
-    ROCKET = '🚀'
+    ROCKET = '🚀',
+    DONE = '💡'
 }
 
 export type ConsoleMethod = 'dir' | 'log' | 'info' | 'warn' | 'error' | 'debug';
@@ -51,8 +54,11 @@ function logWarning(message: string): void {
 }
 
 function logHeader(message: string): void {
+    const headerLength: number = add(message.length, 4);
+    const headerLine: string = `${Colors.BOLD}${Colors.PURPLE}${'='.repeat(headerLength)}${Colors.END}`;
+
     log(
-        `\n${Colors.BOLD}${Colors.PURPLE}${'='.repeat(60)}${Colors.END}`
+        `\n${headerLine}`
     );
 
     log(
@@ -60,7 +66,7 @@ function logHeader(message: string): void {
     );
 
     log(
-        `${Colors.BOLD}${Colors.PURPLE}${'='.repeat(60)}${Colors.END}\n`
+        `${headerLine}\n`
     );
 }
 

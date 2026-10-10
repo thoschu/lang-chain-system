@@ -5,16 +5,17 @@ import * as fs from 'node:fs/promises';
 import { DynamicStructuredTool } from 'langchain';
 import { START, END, StateGraph, Graph, StateSchema, MessagesAnnotation, MessagesValue, GraphNode } from '@langchain/langgraph';
 import type { BaseLanguageModelInput } from '@langchain/core/language_models/base';
-import type { AIMessageChunk, MessageStructure, MessageToolSet, BaseMessage, MessageType } from '@langchain/core/messages';
+import type { AIMessageChunk, MessageStructure, MessageToolSet, BaseMessage, MessageType, ContentBlock } from '@langchain/core/messages';
 import { HumanMessage, SystemMessage, AIMessage } from '@langchain/core/messages';
 import type { Runnable }  from '@langchain/core/runnables';
 import { ChatOllama, type ChatOllamaCallOptions } from '@langchain/ollama';
 import { tool } from 'langchain/tools';
 import { Firecrawl, type SearchData } from 'firecrawl';
-import { toUpper, append, prop, last, length, and } from 'ramda';
+import { toUpper, append, prop, last, length, and, toString } from 'ramda';
 import { z } from 'zod';
 
 import { runAgentReasoning, toolNode } from './nodes.ts';
+import { ErrorMessage } from './messages.ts';
 import { stateAnnotation, State, StateUpdate, Node } from './types.ts';
 
 import { logHeader, logInfo, logSuccess, logError, log, Icons, Colors } from './logger.js';
@@ -98,7 +99,7 @@ const graph = new StateGraph(stateAnnotation)
 
 const result: State = await graph.invoke({
     messages: [
-        new HumanMessage('What is the current weather in Tokyo right now? List it and then triple it.')
+        new HumanMessage('What is the current temperature (in Celsius) in Hamburg right now? List it and then triple it.')
     ],
     value: 1,
 }).then(async (state: State) => {
@@ -108,13 +109,13 @@ const result: State = await graph.invoke({
 
     await fs.writeFile('./graph.png', imageBuffer);
 
-    console.dir(state);
+    log(state);
 
     return state;
 });
 
-console.log('#####################');
 const { messages, value }: State = result;
-const lastMessage: BaseMessage<MessageStructure<MessageToolSet>, MessageType> = last(messages)!;
-const content = lastMessage?.content ?? 'No content found in the last message.';
-console.log(content);
+const lastMessage: BaseMessage<MessageStructure<MessageToolSet>, MessageType> = last(messages) ?? new ErrorMessage('An error occurred: No messages found in the result state.');
+const content:  string | Array<ContentBlock | ContentBlock.Text> = lastMessage?.content ?? 'No content found in the last message.';
+
+log(content);
