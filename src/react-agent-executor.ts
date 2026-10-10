@@ -115,5 +115,6 @@ const result: State = await graph.invoke({
 
 console.log('#####################');
 const { messages, value }: State = result;
-const lastMessage = last(messages);
-console.log(lastMessage);
+const lastMessage: BaseMessage<MessageStructure<MessageToolSet>, MessageType> = last(messages)!;
+const content = lastMessage?.content ?? 'No content found in the last message.';
+console.log(content);
