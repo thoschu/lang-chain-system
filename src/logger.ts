@@ -33,6 +33,10 @@ export class Colors {
     static readonly END: "[0m" = '\x1b[0m';
 }
 
+function dir(message: unknown, depth: number = 1): void {
+    console.dir(`${message}`, { depth });
+}
+
 function log(message: unknown, method: ConsoleMethod = 'log'): void {
     console[method](`${message}${Colors.END}`);
 }
@@ -70,4 +74,4 @@ function logHeader(message: string): void {
     );
 }
 
-export { log, logInfo, logSuccess, logError, logWarning, logHeader };
+export { dir, log, logInfo, logSuccess, logError, logWarning, logHeader };

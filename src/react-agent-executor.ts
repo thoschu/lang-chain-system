@@ -6,7 +6,7 @@ import { DynamicStructuredTool } from 'langchain';
 import { START, END, StateGraph, Graph, StateSchema, MessagesAnnotation, MessagesValue, GraphNode } from '@langchain/langgraph';
 import type { BaseLanguageModelInput } from '@langchain/core/language_models/base';
 import type { AIMessageChunk, MessageStructure, MessageToolSet, BaseMessage, MessageType, ContentBlock } from '@langchain/core/messages';
-import { HumanMessage, SystemMessage, AIMessage } from '@langchain/core/messages';
+import { HumanMessage, SystemMessage, AIMessage, ChatMessage  } from '@langchain/core/messages';
 import type { Runnable }  from '@langchain/core/runnables';
 import { ChatOllama, type ChatOllamaCallOptions } from '@langchain/ollama';
 import { tool } from 'langchain/tools';
@@ -15,7 +15,6 @@ import { toUpper, append, prop, last, length, and, toString } from 'ramda';
 import { z } from 'zod';
 
 import { runAgentReasoning, toolNode } from './nodes.ts';
-import { ErrorMessage } from './messages.ts';
 import { stateAnnotation, State, StateUpdate, Node } from './types.ts';
 
 import { logHeader, logInfo, logSuccess, logError, log, Icons, Colors } from './logger.js';
@@ -109,13 +108,13 @@ const result: State = await graph.invoke({
 
     await fs.writeFile('./graph.png', imageBuffer);
 
-    log(state);
+    //log(state);
 
     return state;
 });
 
 const { messages, value }: State = result;
-const lastMessage: BaseMessage<MessageStructure<MessageToolSet>, MessageType> = last(messages) ?? new ErrorMessage('An error occurred: No messages found in the result state.');
+const lastMessage: BaseMessage<MessageStructure<MessageToolSet>, MessageType> = last(messages) ?? new ChatMessage('An error occurred: No messages found in the result state.', 'error');
 const content:  string | Array<ContentBlock | ContentBlock.Text> = lastMessage?.content ?? 'No content found in the last message.';
 
 log(content);

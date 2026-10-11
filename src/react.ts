@@ -59,10 +59,16 @@ const firecrawl_search_tool: DynamicStructuredTool = tool(
         });
 
         const result: SearchData = await firecrawl.search(query, {
-            limit: 1
+            limit: 1,
+            scrapeOptions: {
+                formats: [],
+                onlyMainContent: true
+            }
         });
 
-        return result.web ?? 'n/a';
+        console.dir(result, {depth: 3});
+
+        return result.web;
     }, {
         name: 'firecrawl_search_tool',
         description: 'Tool that searches over the internet via firecrawl.',
@@ -74,7 +80,8 @@ const firecrawl_search_tool: DynamicStructuredTool = tool(
 
 const chatOllamaLlm: ChatOllama = new ChatOllama({
     model: 'nemotron-3.5-lightning',
-    temperature: 0
+    temperature: 0,
+
 });
 
 const chatAnthropicLlm: ChatAnthropic = new ChatAnthropic({
