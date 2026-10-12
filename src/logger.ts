@@ -33,8 +33,8 @@ export class Colors {
     static readonly END: "[0m" = '\x1b[0m';
 }
 
-function dir(message: unknown, depth: number = 1): void {
-    console.dir(`${message}`, { depth });
+function dir(message: unknown | string, depth: number = 1): void {
+    console.dir(message, { depth: depth });
 }
 
 function log(message: unknown, method: ConsoleMethod = 'log'): void {

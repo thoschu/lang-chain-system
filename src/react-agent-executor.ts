@@ -3,7 +3,7 @@ import 'dotenv/config';
 import * as fs from 'node:fs/promises';
 
 import { DynamicStructuredTool } from 'langchain';
-import { START, END, StateGraph, Graph, StateSchema, MessagesAnnotation, MessagesValue, GraphNode } from '@langchain/langgraph';
+import { START, END, StateGraph, Graph, StateSchema, MessagesAnnotation, MessagesValue, GraphNode, type LangGraphRunnableConfig } from '@langchain/langgraph';
 import type { BaseLanguageModelInput } from '@langchain/core/language_models/base';
 import type { AIMessageChunk, MessageStructure, MessageToolSet, BaseMessage, MessageType, ContentBlock } from '@langchain/core/messages';
 import { HumanMessage, SystemMessage, AIMessage, ChatMessage  } from '@langchain/core/messages';
@@ -11,13 +11,13 @@ import type { Runnable }  from '@langchain/core/runnables';
 import { ChatOllama, type ChatOllamaCallOptions } from '@langchain/ollama';
 import { tool } from 'langchain/tools';
 import { Firecrawl, type SearchData } from 'firecrawl';
-import { toUpper, append, prop, last, length, and, toString } from 'ramda';
+import { toUpper, append, prop, last, length, and, toString, not } from 'ramda';
 import { z } from 'zod';
 
 import { runAgentReasoning, toolNode } from './nodes.ts';
 import { stateAnnotation, State, StateUpdate, Node } from './types.ts';
 
-import { logHeader, logInfo, logSuccess, logError, log, Icons, Colors } from './logger.js';
+import { logHeader, logInfo, logSuccess, logError, log, dir, Icons, Colors } from './logger.js';
 
 const { env } = process;
 const { PROD } = env;
@@ -26,7 +26,7 @@ logHeader(`React Agent Executor with LangGraph is running in ${PROD === 'true' ?
 
 const DOUBLE: string = 'double' as const;
 
-const init: Node = (state: State): State => {
+const init: Node = (state: State): StateUpdate => {
     const { messages, value }: State = state;
 
     logInfo('init');
@@ -61,16 +61,19 @@ const shouldContinueAfterReasoning = (state: State) => {
     return 'increment';
 }
 
-const increment: GraphNode<typeof stateAnnotation> = (state: State): State => {
-    logInfo('increment');
+const increment: GraphNode<typeof stateAnnotation> = (state: State, config: LangGraphRunnableConfig): StateUpdate => {
+    const { metadata }: LangGraphRunnableConfig = config;
+
+    //logInfo(toString(config.metadata?.langgraph_node));
+
+    console.log(metadata);
 
     return {
-        messages: state.messages,
         value: state.value + 1,
     };
 };
 
-const double: Node = (state: State): State => {
+const double: Node = (state: State): StateUpdate => {
     logInfo('double');
 
     return {
@@ -96,25 +99,25 @@ const graph = new StateGraph(stateAnnotation)
 
     .compile();
 
+const message: string = 'What is the current temperature in New York right now? List it and then triple it.';
+const humanMessage: HumanMessage = new HumanMessage(message);
 const result: State = await graph.invoke({
-    messages: [
-        new HumanMessage('What is the current temperature (in Celsius) in Hamburg right now? List it and then triple it.')
-    ],
+    messages: [humanMessage],
     value: 1,
-}).then(async (state: State) => {
-    const drawableGraph = await graph.getGraphAsync();
+}, { context: { userName: 'Thomas' }, recursionLimit: 20 }).then(async (state: State) => {
+    const drawableGraph: Graph = await graph.getGraphAsync();
     const image: Blob = await drawableGraph.drawMermaidPng();
     const imageBuffer: Uint8Array<ArrayBuffer> = new Uint8Array(await image.arrayBuffer());
 
     await fs.writeFile('./graph.png', imageBuffer);
 
-    //log(state);
+    if (not(PROD === 'true')) dir(state, 2);
 
     return state;
 });
 
 const { messages, value }: State = result;
 const lastMessage: BaseMessage<MessageStructure<MessageToolSet>, MessageType> = last(messages) ?? new ChatMessage('An error occurred: No messages found in the result state.', 'error');
-const content:  string | Array<ContentBlock | ContentBlock.Text> = lastMessage?.content ?? 'No content found in the last message.';
+const content: string | Array<ContentBlock | ContentBlock.Text> = lastMessage?.content ?? 'No content found in the last message.';
 
 log(content);

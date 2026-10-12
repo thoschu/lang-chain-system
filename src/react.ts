@@ -8,12 +8,15 @@ import { ChatAnthropic } from '@langchain/anthropic';
 import { ChatOllama } from '@langchain/ollama';
 import { tool } from 'langchain/tools';
 import { Firecrawl, type SearchData } from 'firecrawl';
-import { toUpper, multiply } from 'ramda';
+import { toUpper, multiply, not } from 'ramda';
 import { z } from 'zod';
 
 import { ToolCallingLlm } from './types.ts';
 
-import { logHeader, logInfo, logSuccess, logError, log, Icons, Colors } from './logger.js';
+import { dir, logHeader, logInfo, logSuccess, logError, log, Icons, Colors } from './logger.js';
+
+const { env } = process;
+const { PROD } = env;
 
 const triple_tool: DynamicStructuredTool = tool(
     ({ query }: Record<'query', number>): number => {
@@ -60,15 +63,13 @@ const firecrawl_search_tool: DynamicStructuredTool = tool(
 
         const result: SearchData = await firecrawl.search(query, {
             limit: 1,
-            scrapeOptions: {
-                formats: [],
-                onlyMainContent: true
-            }
-        });
+            //scrapeOptions: { onlyMainContent: true }
+        }),
+        { web }: SearchData = result;
 
-        console.dir(result, {depth: 3});
+        if (not(PROD === 'true')) dir(result, 3);
 
-        return result.web;
+        return web;
     }, {
         name: 'firecrawl_search_tool',
         description: 'Tool that searches over the internet via firecrawl.',
