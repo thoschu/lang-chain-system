@@ -4,14 +4,14 @@ import { DynamicStructuredTool } from 'langchain';
 
 import { AIMessageChunk, type MessageStructure, MessageToolSet } from '@langchain/core/messages';
 import { AIMessage } from '@langchain/core/messages';
-import { ChatAnthropic } from '@langchain/anthropic';
-import { ChatOllama } from '@langchain/ollama';
+import { ChatAnthropic, type ChatAnthropicCallOptions } from '@langchain/anthropic';
+import type { BaseLanguageModelInput } from '@langchain/core/language_models/base';
+import type { Runnable } from '@langchain/core/runnables';
+import { ChatOllama, type ChatOllamaCallOptions } from '@langchain/ollama';
 import { tool } from 'langchain/tools';
-import { Firecrawl, type SearchData } from 'firecrawl';
+import { Firecrawl, type SearchData, type SearchResultWeb } from 'firecrawl';
 import { toUpper, multiply, not } from 'ramda';
 import { z } from 'zod';
-
-import { ToolCallingLlm } from './types.ts';
 
 import { dir, logHeader, logInfo, logSuccess, logError, log, Icons, Colors } from './logger.js';
 
@@ -92,10 +92,10 @@ const chatAnthropicLlm: ChatAnthropic = new ChatAnthropic({
 
 export const tools: Array<DynamicStructuredTool> = [triple_tool, to_upper_case_tool, firecrawl_search_tool];
 
-const ollama: ToolCallingLlm = chatOllamaLlm.bindTools(tools);
-const claude = chatAnthropicLlm.bindTools(tools);
+const ollama: Runnable<BaseLanguageModelInput, AIMessageChunk<MessageStructure<MessageToolSet>>, ChatOllamaCallOptions> = chatOllamaLlm.bindTools(tools);
+const claude: Runnable<BaseLanguageModelInput, AIMessageChunk<MessageStructure<MessageToolSet>>, ChatAnthropicCallOptions> = chatAnthropicLlm.bindTools(tools);
 
-export const llm: Record<'claude' | 'ollama', ToolCallingLlm> = {
+export const llm: Record<'claude' | 'ollama', Runnable> = {
     claude,
     ollama
 };

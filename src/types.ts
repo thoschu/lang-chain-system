@@ -14,4 +14,3 @@ export const stateAnnotation = new StateSchema({
 export type State = typeof stateAnnotation.State;
 export type StateUpdate = typeof stateAnnotation.Update;
 export type Node = typeof stateAnnotation.Node;
-export type ToolCallingLlm = Runnable<BaseLanguageModelInput, AIMessageChunk<MessageStructure<MessageToolSet>>, BaseChatModelCallOptions>;

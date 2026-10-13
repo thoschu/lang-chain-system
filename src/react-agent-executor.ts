@@ -105,7 +105,7 @@ const result: State = await graph.invoke({
     messages: [humanMessage],
     value: 1,
 }, { context: { userName: 'Thomas' }, recursionLimit: 20 }).then(async (state: State) => {
-    const drawableGraph: Graph = await graph.getGraphAsync();
+    const drawableGraph = await graph.getGraphAsync();
     const image: Blob = await drawableGraph.drawMermaidPng();
     const imageBuffer: Uint8Array<ArrayBuffer> = new Uint8Array(await image.arrayBuffer());
 
